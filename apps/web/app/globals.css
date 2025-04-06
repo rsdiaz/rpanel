@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* 
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -10,18 +10,27 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --color: 244, 244, 245;
+    --foreground-rgb: 24, 24, 27;
+    --background-start-rgb: 9, 9, 11;
+    --background-end-rgb: 9, 9, 11;
+    --sidebar-border: 240 3.7% 15.9%
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: rgb(var(--color));
+  background: rgb(var(--foreground-rgb));
 }
+
+.bg-background {
+  background-color: rgb(var(--background-start-rgb));
+}
+
+.border-sidebar-border {
+  border-color: hsl(var(--sidebar-border));
+}
+
+.hover\:bg-sidebar-accent:hover {
+  background-color: hsl(var(--sidebar-border));
+} */

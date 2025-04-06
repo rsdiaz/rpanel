@@ -3,7 +3,7 @@
 import type { Config } from "tailwindcss";
 import sharedConfig from "@repo/tailwind-config";
 
-const config: Pick<Config, "content" | "presets"> = {
+const config: Pick<Config, "content" | "presets" | "prefix"> = {
   content: ["./app/**/*.tsx"],
   presets: [sharedConfig],
 };
