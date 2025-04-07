@@ -1,10 +1,9 @@
-import { Router } from "express"
+import express, { Router } from "express";
 import * as os from "node:os"
-import Docker from "dockerode"
 import docker from "../docker"
 import checkDiskSpace from "check-disk-space"
 
-const router = Router()
+const router: Router = express.Router();
 
 function getCPUInfo() {
   const cpus = os.cpus()
