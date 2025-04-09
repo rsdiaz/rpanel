@@ -22,12 +22,12 @@ export default function ContainersPage() {
             >
               <Image alt="Home" src="/logo.png" width={100} height={100} />
             </Link>
-            <div className="font-medium">RPanel - v0.0.1</div>
+            <div className="">RPanel - v0.0.1</div>
           </div>
 
           <div className="mt-12 flex flex-col gap-2">
             <Link
-              className="group flex items-center gap-4 rounded-lg py-[10px] px-[15px] overflow-clip hover:bg-sidebar-accent transition-all bg-white hover:!bg-background border border-sidebar-border shadow-sm"
+              className="group flex items-center gap-4 rounded-lg py-[10px] px-[15px] overflow-clip hover:bg-sidebar-accent transition-all bg-background-secondary hover:!bg-background border border-sidebar-border shadow-sm"
               href="/"
             >
               <svg
@@ -63,7 +63,7 @@ export default function ContainersPage() {
         </div>
       </div>
 
-      <div className="flex-1 border-t border-l border-sidebar-border mt-4 rounded-tl-xl overflow-y-auto bg-background-secondary text-foreground p-10">
+      <div className="flex-1 border-t border-l border-border mt-4 rounded-tl-xl overflow-y-auto bg-background-secondary text-foreground p-10">
         <div className="p-6 space-y-8">
 
           <SystemInfo />

@@ -7,7 +7,7 @@ const config: Pick<
   "prefix" | "presets" | "content" | "darkMode" | "theme" | "plugins"
 > = {
   presets: [sharedConfig],
-  darkMode: ["class"],
+  darkMode: "media",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -15,7 +15,7 @@ const config: Pick<
     "./src/**/*.{ts,tsx}",
   ],
   // prefix: "ui-",
-  theme: {
+  /* theme: {
     container: {
       center: true,
       padding: "2rem",
@@ -25,11 +25,11 @@ const config: Pick<
     },
     extend: {
       colors: {
+        "background-secondary": "hsl(var(--background-secondary))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
-        "background-secondary": "hsl(var(--background-secondary))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -80,7 +80,7 @@ const config: Pick<
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
-  },
+  }, */
   // plugins: [animate],
 };
 

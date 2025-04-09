@@ -37,21 +37,21 @@ export default function SystemInfo() {
         <Card className="bg-background rounded w-full">
           <CardHeader>
             <CardDescription className="flex gap-2 items-center justify-between">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Badge
                   variant={"outline"}
-                  className="rounded-full p-1 bg-white text-foreground"
+                  className="rounded-full p-2 bg-background-secondary text-foreground"
                 >
                   <Cpu />
                 </Badge>
                 <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-                  {systemInfo?.cpu?.usagePercent.toFixed(2)}%
+                  <span className="text-white">{systemInfo?.cpu?.usagePercent.toFixed(2)}%</span>
                 </CardTitle>
               </div>
               <div>
                 <Badge
                   variant={"outline"}
-                  className="flex gap-1 rounded-lg text-xs bg-white"
+                  className="flex gap-1 rounded-lg text-xs bg-background-secondary"
                 >
                   {/* <TrendingUpIcon className="size-3" /> */}
                   {systemInfo?.cpu.count} / {systemInfo?.memory.total.toFixed(2)}{" "}
@@ -64,21 +64,21 @@ export default function SystemInfo() {
         <Card className="bg-background rounded w-full">
           <CardHeader>
             <CardDescription className="flex gap-2 items-center justify-between">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Badge
                   variant={"outline"}
-                  className="rounded-full p-1 bg-white text-foreground"
+                  className="rounded-full p-2 bg-background-secondary text-foreground"
                 >
                   <MemoryStick />
                 </Badge>
-                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
                   {systemInfo?.memory?.usedPercent.toFixed(2)}%
                 </CardTitle>
               </div>
               <div>
                 <Badge
                   variant={"outline"}
-                  className="flex gap-1 rounded-lg text-xs bg-white"
+                  className="flex gap-1 rounded-lg text-xs bg-background-secondary"
                 >
                   {/* <TrendingUpIcon className="size-3" /> */}
                   {systemInfo?.memory.used.toFixed(2)} /{" "}
@@ -91,21 +91,21 @@ export default function SystemInfo() {
         <Card className="bg-background rounded w-full">
           <CardHeader>
             <CardDescription className="flex gap-2 items-center justify-between">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Badge
                   variant={"outline"}
-                  className="rounded-full p-1 bg-white text-foreground"
+                  className="rounded-full p-2 bg-background-secondary text-foreground"
                 >
                   <Database />
                 </Badge>
-                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
                   {systemInfo?.disk?.usedPercent.toFixed(2)}%
                 </CardTitle>
               </div>
               <div>
                 <Badge
                   variant={"outline"}
-                  className="flex gap-1 rounded-lg text-xs bg-white"
+                  className="flex gap-1 rounded-lg text-xs bg-background-secondary"
                 >
                   {/* <TrendingUpIcon className="size-3" /> */}
                   {systemInfo?.disk.used.toFixed(2)} /{" "}
@@ -118,21 +118,21 @@ export default function SystemInfo() {
         <Card className="bg-background rounded w-full">
           <CardHeader>
             <CardDescription className="flex gap-2 items-center justify-between">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Badge
                   variant={"outline"}
-                  className="rounded-full p-1 bg-white text-foreground"
+                  className="rounded-full p-2 bg-background-secondary text-foreground"
                 >
                   <Container />
                 </Badge>
-                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+                <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
                   {containers.length}
                 </CardTitle>
               </div>
               <div>
                 <Badge
                   variant={"outline"}
-                  className="flex gap-1 rounded-lg text-xs bg-white"
+                  className="flex gap-1 rounded-lg text-xs bg-background-secondary"
                 >
                   {/* <TrendingUpIcon className="size-3" /> */}
                   Containers

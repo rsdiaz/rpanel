@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@repo/ui/components/ui/button";
-import { Package, PackagePlus, Play, RotateCcw } from "lucide-react";
+import { Package, PackagePlus, Play, RotateCcw, Square } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -21,7 +21,7 @@ export default function Projects() {
     <>
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">Proyectos</h1>
-        <Button variant={"secondary"}>
+        <Button>
           <PackagePlus />
           Nuevo Proyecto
         </Button>
@@ -33,21 +33,26 @@ export default function Projects() {
             {project === "_standalone" ? (
               "Contenedores individuales"
             ) : (
-              <Link
-                className="flex gap-4 items-center"
-                href={`/projects/${project}`}
-              >
-                <Package />
-                <Button variant={"ghost"} className="text-lg font-bold">
-                  {project}
+              <div className="flex gap-2">
+                <Link
+                  className="flex gap-4 items-center"
+                  href={`/projects/${project}`}
+                >
+                  <Package />
+                  <Button  className="text-lg font-bold bg-transparent">
+                    {project}
+                  </Button>
+                </Link>
+                <Button className="text-lg font-bold bg-transparent">
+                    <Play strokeWidth={3} />
                 </Button>
-                <Button variant={"ghost"}>
-                  <Play />
+                <Button className="text-lg font-bold bg-transparent">
+                    <RotateCcw strokeWidth={3} />
                 </Button>
-                <Button variant={"ghost"}>
-                  <RotateCcw />
+                <Button className="text-lg font-bold bg-transparent">
+                    <Square strokeWidth={3} />
                 </Button>
-              </Link>
+              </div>
             )}
           </h2>
 
@@ -57,7 +62,7 @@ export default function Projects() {
                 key={c.Id}
                 className="border p-4 rounded shadow text-sidebar-foreground bg-background"
               >
-                <div className="text-sm">{c.image}</div>
+                <div className="text-sm truncate w-full">{c.image}</div>
                 <div className="text-xs text-gray-600">
                   {c.labels["com.docker.compose.service"]}
                 </div>
