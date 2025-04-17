@@ -1,101 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { Button } from "@repo/ui/components/ui/button";
-import { Package, PackagePlus, Play, RotateCcw, Square } from "lucide-react";
+import { Package, Trash } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useProjectsStore } from "../../stores/serviceStore";
+import { CreateProjectDialog } from "./create-project-dialog";
+import { CreateAppDialog } from "./add-app-dialog";
 
 export default function Projects() {
-  const [containers, setContainers] = useState<any[]>([]);
+  const { projects, setProjects } = useProjectsStore();
 
-  useEffect(() => {
-    fetch("http://localhost:3004/system")
-      .then((res) => res.json())
-      .then((json) => {
-        setContainers(json.docker.containers);
+  async function refreshProjects() {
+    try {
+      const res = await fetch("http://localhost:3004/projects/");
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error("Error al actualizar proyectos:", err);
+    }
+  }
+
+  async function handleDeleteProject(id: string) {
+    try {
+      await fetch(`http://localhost:3004/projects/${id}`, {
+        method: "DELETE",
       });
-  }, []);
-
-  const grouped = groupByProject(containers);
+      await refreshProjects();
+    } catch (err) {
+      console.error("Error al eliminar proyecto:", err);
+    }
+  }
 
   return (
     <>
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Proyectos</h1>
-        <Button>
-          <PackagePlus />
-          Nuevo Proyecto
-        </Button>
+        <CreateProjectDialog />
       </div>
 
-      {Object.entries(grouped).map(([project, containers]) => (
-        <div key={project} className="space-y-2">
+      {projects.map((project) => (
+        <div key={project.id} className="space-y-2 mb-8">
           <h2 className="text-lg font-semibold">
-            {project === "_standalone" ? (
-              "Contenedores individuales"
-            ) : (
-              <div className="flex gap-2">
-                <Link
-                  className="flex gap-4 items-center"
-                  href={`/projects/${project}`}
-                >
-                  <Package />
-                  <Button  className="text-lg font-bold bg-transparent">
-                    {project}
-                  </Button>
-                </Link>
-                <Button className="text-lg font-bold bg-transparent">
-                    <Play strokeWidth={3} />
+            <div className="flex gap-2 items-center">
+              <Link
+                className="flex gap-2 items-center"
+                href={`/projects/${project.id}`}
+              >
+                <Package />
+                <Button className="text-lg font-bold bg-transparent p-0 hover:bg-transparent">
+                  {project.name}
                 </Button>
-                <Button className="text-lg font-bold bg-transparent">
-                    <RotateCcw strokeWidth={3} />
-                </Button>
-                <Button className="text-lg font-bold bg-transparent">
-                    <Square strokeWidth={3} />
-                </Button>
-              </div>
-            )}
+              </Link>
+
+              <CreateAppDialog id={project.id} />
+
+              <Button
+                className="text-lg font-bold bg-transparent p-0 hover:bg-transparent text-red-600"
+                onClick={() => handleDeleteProject(project.id)}
+              >
+                <Trash strokeWidth={2} />
+              </Button>
+            </div>
           </h2>
 
           <ul className="grid md:grid-cols-4 gap-4">
-            {containers.map((c: any) => (
-              <li
-                key={c.Id}
-                className="border p-4 rounded shadow text-sidebar-foreground bg-background"
-              >
-                <div className="text-sm truncate w-full">{c.image}</div>
-                <div className="text-xs text-gray-600">
-                  {c.labels["com.docker.compose.service"]}
-                </div>
-                <div className="text-sm italic">
-                  Estado:{" "}
-                  <span
-                    className={
-                      c.state === "running"
-                        ? "text-green-600"
-                        : "text-yellow-600"
-                    }
+            {project.config &&
+              Array.isArray(project.config.services) &&
+              project.config.services.map((service, index) => (
+                <Link href={`/projects/${project.name}/app/${service.data.serviceName}`} key={index}>
+                  <li
+                    key={index}
+                    className="border p-4 rounded shadow text-sidebar-foreground bg-background"
                   >
-                    {c.state}
-                  </span>
-                </div>
-              </li>
-            ))}
+                    <div className="truncate w-full font-semibold">
+                      {service.data.serviceName}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {service.data.source.image}
+                    </div>
+                    <div className="text-sm mt-2">
+                      {service.data.domains.map((domain: any, i: number) => (
+                        <div key={i}>
+                          <span className="text-muted-foreground">
+                            {domain.host}
+                          </span>
+                          : {domain.port}
+                        </div>
+                      ))}
+                    </div>
+                  </li>
+                </Link>
+              ))}
           </ul>
         </div>
       ))}
     </>
   );
-}
-
-// helper
-function groupByProject(containers: any[]) {
-  const groups: Record<string, any[]> = {};
-
-  containers.forEach((c) => {
-    const project = c.labels?.["com.docker.compose.project"] || "_standalone";
-    if (!groups[project]) groups[project] = [];
-    groups[project].push(c);
-  });
-
-  return groups;
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import systemRoutes from "./routes/system.routes";
-import appsRoutes from "./routes/apps.routes";
+import projectsRoutes from "./routes/projects.routes";
 import servicesRoutes from "./routes/services.routes";
 
 const app = express();
@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/system", systemRoutes);
-app.use("/apps", appsRoutes)
+app.use("/projects", projectsRoutes)
 app.use("/services", servicesRoutes)
 
 app.listen(PORT, () => {

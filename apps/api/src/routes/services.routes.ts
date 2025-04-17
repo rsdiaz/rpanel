@@ -6,6 +6,7 @@ const deployService = new DeployService()
 
 // Obtener estado de un servicio
 router.get('/:name/status', async (req, res) => {
+  console.log('auiqqqq')
   const status = await deployService.getServiceStatus(req.params.name);
   res.json({ status });
 });

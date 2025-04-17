@@ -1,4 +1,8 @@
+import fs from 'node:fs';
 import Docker, { MountSettings, MountType } from 'dockerode';
+import yaml from 'yaml';
+import { ServiceTemplate } from '../types';
+import { runCommand } from './ShellUtils';
 
 export class DeployService {
   private docker: Docker;
@@ -77,13 +81,26 @@ export class DeployService {
   async stopService(serviceName: string) {
     try {
       const service = this.docker.getService(serviceName);
-      const info = await service.inspect();
+      const { Spec, Version } = await service.inspect();
+  
+      if (!Spec.Mode.Replicated) {
+        console.warn(`El servicio ${serviceName} no es del tipo replicado.`);
+        return;
+      }
+  
+      Spec.Mode.Replicated.Replicas = 0;
+  
       await service.update({
-        version: Number(info.Version.Index),
-        TaskTemplate: info.Spec.TaskTemplate,
-        Mode: { Replicated: { Replicas: 0 } }
+        version: Version.Index,
+        TaskTemplate: Spec.TaskTemplate,
+        Mode: Spec.Mode,
+        EndpointSpec: Spec.EndpointSpec,
       });
-    } catch {}
+  
+      console.log(`Servicio ${serviceName} detenido correctamente.`);
+    } catch (error) {
+      console.error(`Error al detener el servicio ${serviceName}:`, error);
+    }
   }
   
   async startService(serviceName: string) {
@@ -96,5 +113,95 @@ export class DeployService {
         Mode: { Replicated: { Replicas: 1 } }
       });
     } catch {}
+  }
+
+  private toDockerCompose(data: ServiceTemplate): any {
+      const compose: any = {
+        version: '3.9',
+        services: {},
+        volumes: {},
+        networks: {}
+      };
+  
+      data.services.forEach(service => {
+        const { data } = service;
+        const name = data.serviceName;
+  
+        const svc: any = {
+          image: data.source.image,
+          deploy: {
+            replicas: 1
+          }
+        };
+  
+        // Environment variables
+        if (data.env) {
+          svc.environment = {};
+          data.env.split('\n').forEach(line => {
+            const [key, ...val] = line.split('=');
+            if (key) {
+              svc.environment[key.trim()] = val.join('=').replace(/^"|"$/g, '').trim();
+            }
+          });
+        }
+  
+        // Ports
+        if (data.domains?.length) {
+
+          /* svc.ports = data.domains.map(d => `${d.port}:${d.port}`);
+
+          const labels: string[] = [];
+        
+          data.domains.forEach((domain, index) => {
+            const rule = `Host(\`${domain.host}\`)`;
+            labels.push(`traefik.enable=true`);
+            labels.push(`traefik.http.routers.${name}${index > 0 ? `-${index}` : ''}.rule=${rule}`);
+            labels.push(`traefik.http.services.${name}.loadbalancer.server.port=${domain.port}`);
+          });
+        
+          svc.deploy.labels = labels; */
+
+          svc.ports = data.domains.map(d => `${d.port}:${d.port}`);
+        }
+  
+        // Mounts (volumes)
+        if (data.mounts?.length) {
+          svc.volumes = data.mounts.map(m => {
+            compose.volumes[m.name] = {};
+            return `${m.name}:${m.mountPath}`;
+          });
+        }
+  
+        // Networks
+        /* if (data.networks?.length) {
+          svc.networks = data.networks;
+          data.networks.forEach(net => {
+            compose.networks[net] = { external: true };
+          });
+        } */
+  
+        compose.services[name] = svc;
+      });
+  
+      return compose;
+  }
+  
+  private writeComposeFile(data: ServiceTemplate, path = 'docker-compose.yml') {
+      const composeObj = this.toDockerCompose(data);
+      fs.writeFileSync(path, yaml.stringify(composeObj));
+      console.log(`✅ Archivo ${path} generado`);
+  }
+  
+  public async deploy(stackName: string, data: ServiceTemplate) {
+      try {
+        const createFile = this.writeComposeFile(data)
+  
+        // runCommand(`docker stack deploy -c docker-compose.yml ${stackName}  --detach=false`)
+
+        // execSync(`docker stack deploy -c docker-compose.yml ${stackName}`, { stdio: 'inherit' });
+        console.log(`🚀 Stack '${stackName}' desplegado correctamente`);
+      } catch (error: any) {
+        console.error('❌ Error al desplegar el stack:', error.message);
+      }
   }
 }
