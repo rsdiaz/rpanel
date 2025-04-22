@@ -1,5 +1,5 @@
 import { Button } from "@repo/ui/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/components/ui/dialog";
 import { Label } from "@repo/ui/components/ui/label";
 import { Input } from "@repo/ui/components/ui/input";
 import { PackagePlus } from "lucide-react";
@@ -10,7 +10,7 @@ import { useState } from "react";
 
 
 export function CreateProjectDialog() {
-  const { projects, setProjects } = useProjectsStore()
+  const { setProjects } = useProjectsStore()
   const [name, setName] = useState('')
   
 
@@ -23,7 +23,7 @@ export function CreateProjectDialog() {
         services: []
       }
     }
-    const res = await fetch('http://localhost:3004/projects', {
+    await fetch('http://localhost:3004/projects', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -32,10 +32,10 @@ export function CreateProjectDialog() {
       
     })
 
-    setProjects([
-      ...projects,
-      project
-    ])
+    const projectsResponse = await fetch('http://localhost:3004/projects')
+    const projectsData = await projectsResponse.json()
+
+    setProjects(projectsData)
     
   }
 
@@ -63,9 +63,7 @@ export function CreateProjectDialog() {
           </div>
         </div>
         <DialogFooter>
-          <DialogClose>
             <Button type="submit" variant={"secondary"} onClick={handleSubmit}>Crear</Button>
-          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
