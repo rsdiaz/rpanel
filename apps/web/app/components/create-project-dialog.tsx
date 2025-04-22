@@ -10,7 +10,7 @@ import { useState } from "react";
 
 
 export function CreateProjectDialog() {
-  const { setProjects } = useProjectsStore()
+  const { projects ,setProjects } = useProjectsStore()
   const [name, setName] = useState('')
   
 
@@ -23,7 +23,7 @@ export function CreateProjectDialog() {
         services: []
       }
     }
-    await fetch('http://localhost:3004/projects', {
+    const response = await fetch('http://localhost:3004/projects', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -32,10 +32,12 @@ export function CreateProjectDialog() {
       
     })
 
-    const projectsResponse = await fetch('http://localhost:3004/projects')
-    const projectsData = await projectsResponse.json()
+    const projectData = await response.json()
 
-    setProjects(projectsData)
+    setProjects([
+      ...projects,
+      projectData
+    ])
     
   }
 
