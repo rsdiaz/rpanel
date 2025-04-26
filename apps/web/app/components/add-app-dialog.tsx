@@ -39,6 +39,16 @@ export function CreateAppDialog({id}: { id: string }) {
     ]
   }`)
 
+  async function refreshProjects() {
+    try {
+      const res = await fetch("http://localhost:3004/projects/");
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error("Error al actualizar proyectos:", err);
+    }
+  }
+
   const handleSubmit = async () => {
   const project = projects.find(p => p.id === id)
 
@@ -48,7 +58,7 @@ export function CreateAppDialog({id}: { id: string }) {
       config: JSON.parse(jsonValue),
     };
 
-    const res = await fetch(`http://localhost:3004/projects/${id}`, {
+    await fetch(`http://localhost:3004/projects/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -56,10 +66,18 @@ export function CreateAppDialog({id}: { id: string }) {
       body: JSON.stringify(newProject),
     });
 
-    const responseProjects = await fetch('http://localhost:3004/projects')
-    const newProjects = await responseProjects.json()
-
-    setProjects(newProjects);
+    await fetch(`http://localhost:3004/projects/deploy`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...JSON.parse(jsonValue),
+        name: project?.name,
+      }),
+    })
+  
+    await refreshProjects()
   };
 
   return (
