@@ -1,7 +1,5 @@
 {
   "watch": ["src"],
   "ext": "ts,js,json",
-  "exec": "ts-node src/index.ts",
-  "delay": "100",
-  "legacyWatch": true
+  "exec": "ts-node src/index.ts"
 }

@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/system", systemRoutes);
-app.use("/projects", projectsRoutes)
-app.use("/services", servicesRoutes)
+app.use("/projects", projectsRoutes);
+app.use("/services", servicesRoutes);
 
 app.listen(PORT, () => {
   console.log(`API corriendo en http://localhost:${PORT}`);

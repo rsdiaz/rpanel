@@ -83,7 +83,7 @@ export function CreateAppDialog({id}: { id: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="text-lg font-bold bg-transparent">
+        <Button className="text-lg font-bold bg-transparent px-2">
           <Plus strokeWidth={3} />
         </Button>
       </DialogTrigger>

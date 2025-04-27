@@ -194,14 +194,25 @@ export class DeployService {
   
   public async deploy(stackName: string, data: ServiceTemplate) {
       try {
-        const createFile = this.writeComposeFile(data)
+        this.writeComposeFile(data)
   
-        // runCommand(`docker stack deploy -c docker-compose.yml ${stackName}  --detach=false`)
+        await runCommand(`docker stack deploy -c docker-compose.yml ${stackName}  --detach=false`)
 
-        // execSync(`docker stack deploy -c docker-compose.yml ${stackName}`, { stdio: 'inherit' });
         console.log(`🚀 Stack '${stackName}' desplegado correctamente`);
       } catch (error: any) {
         console.error('❌ Error al desplegar el stack:', error.message);
       }
+  }
+
+  public async removeStack(stackName: string) {
+    try {
+      runCommand(`docker stack rm ${stackName}`)
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('❌ Error al eliminar el stack:', error.message);
+      } else {
+        console.error('❌ Error al eliminar el stack:', error);
+      }
+    }
   }
 }

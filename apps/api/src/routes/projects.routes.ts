@@ -7,9 +7,10 @@ const router: Router = express.Router();
 const projectManager = new ProjectManager()
 const deployService = new DeployService()
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  console.log('listApps')
   const apps = projectManager.listApps();
-  res.json(apps);
+  res.status(200).send(apps);
 });
 
 router.post('/', async (req, res) => {
@@ -17,16 +18,15 @@ router.post('/', async (req, res) => {
 
   const services = config.services
 
-  console.log(services)
+  console.log(config, 'config')
 
-  projectManager.createApp(name, config);
+  const project = projectManager.createApp(name, config);
 
   if(services.length) {
-    deployService.deploy(name, services)
+    deployService.deploy(name, config)
   }
 
-
-  res.json({ ok: true });
+  res.json(project);
 });
 
 router.put('/:id', async (req, res) => {
@@ -36,15 +36,18 @@ router.put('/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   projectManager.deleteApp(req.params.id);
-  res.json({ ok: true });
+  res.json({ ok: req.params.id });
 });
 
 router.post('/deploy', async (req, res) => {
-  const template = req.body as ServiceTemplate;
+  const { name, services } = req.body
+  const template: ServiceTemplate = { services }
 
-  deployService.deploy('test', template)
+  console.log(template, 'template')
+
+  deployService.deploy(name, template)
 
   res.json({ ok: true });
 });

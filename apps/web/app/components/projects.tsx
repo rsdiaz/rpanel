@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@repo/ui/components/ui/button";
-import { Package, Trash } from "lucide-react";
+import { Package, Settings, Trash } from "lucide-react";
 import Link from "next/link";
 import { useProjectsStore } from "../../stores/serviceStore";
 import { CreateProjectDialog } from "./create-project-dialog";
@@ -47,16 +47,23 @@ export default function Projects() {
                 className="flex gap-2 items-center"
                 href={`/projects/${project.id}`}
               >
+                <Button className="text-lg font-bold bg-transparent px-2 py-2">
                 <Package />
-                <Button className="text-lg font-bold bg-transparent p-0 hover:bg-transparent">
                   {project.name}
                 </Button>
               </Link>
 
+              <Link href={`/projects/${project.name}/settings`}>
+                <Button className="text-lg font-bold bg-transparent px-2 py-2">
+                  <Settings strokeWidth={2} />
+                </Button>
+              </Link>
+
+
               <CreateAppDialog id={project.id} />
 
               <Button
-                className="text-lg font-bold bg-transparent p-0 hover:bg-transparent text-red-600"
+                className="text-lg font-bold bg-transparent px-2 py-2 text-red-600"
                 onClick={() => handleDeleteProject(project.id)}
               >
                 <Trash strokeWidth={2} />
@@ -68,7 +75,10 @@ export default function Projects() {
             {project.config &&
               Array.isArray(project.config.services) &&
               project.config.services.map((service, index) => (
-                <Link href={`/projects/${project.name}/app/${service.data.serviceName}`} key={index}>
+                <Link
+                  href={`/projects/${project.name}/app/${service.data.serviceName}`}
+                  key={index}
+                >
                   <li
                     key={index}
                     className="border p-4 rounded shadow text-sidebar-foreground bg-background"

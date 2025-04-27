@@ -38,7 +38,7 @@ function getCPUUsage(): Promise<number> {
 }
 
 router.get("/", async (_, res) => {
-  console.log('sytemaa')
+  console.log('sytema')
   const [info, containers, cpuUsage, disk] = await Promise.all([
     docker.info(),
     docker.listContainers({ all: true }),
