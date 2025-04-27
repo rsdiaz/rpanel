@@ -1,57 +1,84 @@
-import { readFile, writeFile } from "fs/promises";
-import { glob } from "glob";
-import { compile } from "json-schema-to-typescript";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import prettier from "prettier";
-import YAML from "yaml";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Librerías que haremos import dinámico
+let glob: typeof import("glob").glob;
+let compile: typeof import("json-schema-to-typescript").compile;
+let YAML: typeof import("yaml");
 
 async function run() {
-  const items = glob
-    .sync("./templates/*/index.ts")
-    .map((item) => item.slice(10, -9));
+  // Importar dinámicamente glob, json-schema-to-typescript y yaml
+  const globModule = await import("glob");
+  glob = globModule.glob;
 
-  items.sort(); // Ordenar alfabéticamente
+  const yamlModule = await import("yaml");
+  YAML = yamlModule.default ?? yamlModule;
+
+  const compileModule = await import("json-schema-to-typescript");
+  compile = compileModule.compile;
+
+  console.log("🔎 Buscando templates...");
+
+  const templatesRoot = path.resolve(__dirname, "../templates");
+  const templatePaths = await glob("./*/index.ts", { cwd: templatesRoot });
+
+  const items = templatePaths
+    .map((filePath) => path.dirname(filePath)) // 👈 corregido aquí
+    .sort();
+
+  console.log(`📦 Encontrados ${items.length} templates`);
 
   await Promise.all(
     items.map(async (item) => {
-      const meta = YAML.parse(
-        await readFile(`./templates/${item}/meta.yaml`, "utf-8")
-      );
+      try {
+        const metaYamlPath = path.join(templatesRoot, item, "meta.yaml");
+        const metaYaml = await readFile(metaYamlPath, "utf-8");
+        const meta = YAML.parse(metaYaml);
 
-      const types = await compile(meta.schema, "Input", {
-        additionalProperties: false,
-        bannerComment: "",
-      });
+        const types = await compile(meta.schema, "Input", {
+          additionalProperties: false,
+          bannerComment: "",
+        });
 
-      const logo = getLogo(`./templates/${item}/assets`);
-      const screenshots = getScreenshots(`./templates/${item}/assets`);
+        const logo = await getLogo(path.join(templatesRoot, item, "assets"));
+        const screenshots = await getScreenshots(
+          path.join(templatesRoot, item, "assets")
+        );
 
-      await writeFile(
-        `./templates/${item}/meta.ts`,
-        await prettier.format(
-          [
-            `// Generated using "npm run build-templates"`,
-            ``,
-            `export const meta = ${JSON.stringify({
-              ...meta,
-              logo,
-              screenshots,
-            })}`,
-            ``,
-            types,
-          ].join("\n"),
-          { parser: "typescript" }
-        )
-      );
+        const output = [
+          `// Generated using "pnpm build-templates"`,
+          ``,
+          `export const meta = ${JSON.stringify({ ...meta, logo, screenshots })}`,
+          ``,
+          types,
+        ].join("\n");
+
+        const formatted = await prettier.format(output, {
+          parser: "typescript",
+        });
+
+        await writeFile(path.join(templatesRoot, item, "meta.ts"), formatted);
+
+        console.log(`✅ Template generado: ${item}`);
+      } catch (error) {
+        console.error(`⚠️ Error generando template ${item}:`, error);
+      }
     })
   );
 
-  await generateIndex(items);
+  await generateIndex(items, templatesRoot);
+  await generateListJson(items, templatesRoot);
 }
 
-run().catch(console.error);
+async function generateIndex(items: string[], templatesRoot: string) {
+  console.log("🛠 Generando index.ts de templates...");
 
-async function generateIndex(items: string[]) {
-  const output: string[] = [`// Generated using "npm run build-templates"`, ""];
+  const output: string[] = [`// Generated using "pnpm build-templates"`, ``];
 
   items.forEach((item) => {
     output.push(
@@ -66,28 +93,68 @@ async function generateIndex(items: string[]) {
 
   items.forEach((item) => {
     output.push(
-      `  { slug: "${item}", meta: meta_${snakeCase(
-        item
-      )}, generate: generate_${snakeCase(item)} },`
+      `  { slug: "${item}", meta: meta_${snakeCase(item)}, generate: generate_${snakeCase(item)} },`
     );
   });
 
   output.push("];", "", "export default templates;", "");
 
-  await writeFile("./templates/index.ts", output.join("\n"));
+  const indexPath = path.join(templatesRoot, "index.ts");
+  const formatted = await prettier.format(output.join("\n"), {
+    parser: "typescript",
+  });
+
+  await writeFile(indexPath, formatted);
+
+  console.log(`✅ Index generado en ${indexPath}`);
 }
 
-function getLogo(dir: string) {
-  const files = glob.sync(dir + "/logo.{png,svg}");
-  return files[0]?.split("/").pop() ?? null;
+async function getLogo(dir: string) {
+  const files = await glob(path.join(dir, "logo.{png,svg}"));
+  return files.length > 0 ? path.basename(files[0] as string) : null;
 }
 
-function getScreenshots(dir: string) {
-  const files = glob.sync(dir + "/screenshot*.{png,jpg,gif}");
-  return files.map((file) => file.split("/").pop());
+async function getScreenshots(dir: string) {
+  const files = await glob(path.join(dir, "screenshot*.{png,jpg,gif}"));
+  return files.map((file) => path.basename(file));
 }
 
 function snakeCase(str: string) {
   return str.toLowerCase().replace(/([^a-z0-9]+)/g, "_");
 }
 
+async function generateListJson(items: string[], templatesRoot: string) {
+  console.log("🛠 Generando list.json de templates...");
+
+  const list = await Promise.all(
+    items.map(async (item) => {
+      const metaPath = path.join(templatesRoot, item, "meta.ts");
+
+      // ⚡ Import dinámico porque estamos en ESM
+      const metaModule = await import(pathToFileURL(metaPath).href);
+      const meta = metaModule.meta;
+
+      return {
+        slug: item,
+        logo: meta.logo,
+        name: meta.name,
+        description: meta.description,
+        tags: meta.tags ?? [],
+      };
+    })
+  );
+
+  const outputPath = path.join(templatesRoot, "list.json");
+  const formatted = await prettier.format(JSON.stringify(list), { parser: "json" });
+
+  await writeFile(outputPath, formatted);
+
+  console.log(`✅ List generado en ${outputPath}`);
+}
+
+
+// Ejecutar
+run().catch((error) => {
+  console.error("❌ Error al generar templates:", error);
+  process.exit(1);
+});

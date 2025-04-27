@@ -1,7 +1,11 @@
-import { writeFile } from "fs/promises";
-import * as path from "path";
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import templates from "../templates";
 import prettier from "prettier";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const templatesPath = path.resolve(__dirname, "../templates");
 

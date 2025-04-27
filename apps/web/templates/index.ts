@@ -1,4 +1,4 @@
-// Generated using "npm run build-templates"
+// Generated using "pnpm build-templates"
 
 import { meta as meta_adminer } from "./adminer/meta";
 import { generate as generate_adminer } from "./adminer";

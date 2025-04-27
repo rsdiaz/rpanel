@@ -1,4 +1,4 @@
-// Generated using "npm run build-templates"
+// Generated using "pnpm build-templates"
 
 export const meta = {
   name: "Adminer",
@@ -94,8 +94,8 @@ export const meta = {
     },
   ],
   tags: ["Databases", "Developer Tools"],
-  logo: "templates\\adminer\\assets\\logo.svg",
-  screenshots: ["templates\\adminer\\assets\\screenshot.png"],
+  logo: "logo.svg",
+  screenshots: [],
 };
 
 export type AppServiceName = string;

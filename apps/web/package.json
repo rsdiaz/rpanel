@@ -2,13 +2,15 @@
   "name": "web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --port 3000 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "build-templates": "ts-node -r tsconfig-paths/register ./scripts/build-templates.ts && ts-node -r tsconfig-paths/register ./scripts/build-templates-list.ts"
+    "build-templates": "node --loader ts-node/esm --experimental-specifier-resolution=node ./scripts/build-templates.ts",
+    "copy-assets": "ts-node ./scripts/copy-assets.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
