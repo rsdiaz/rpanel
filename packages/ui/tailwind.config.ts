@@ -1,21 +1,13 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss'
 // import animate from "tailwindcss-animate";
-import sharedConfig from "@repo/tailwind-config";
+import sharedConfig from '@repo/tailwind-config'
 
-const config: Pick<
-  Config,
-  "prefix" | "presets" | "content" | "darkMode" | "theme" | "plugins"
-> = {
-  presets: [sharedConfig],
-  darkMode: "media",
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
-  // prefix: "ui-",
-  /* theme: {
+const config: Pick<Config, 'prefix' | 'presets' | 'content' | 'darkMode' | 'theme' | 'plugins'> = {
+	presets: [sharedConfig],
+	darkMode: 'media',
+	content: ['./pages/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
+	// prefix: "ui-",
+	/* theme: {
     container: {
       center: true,
       padding: "2rem",
@@ -81,7 +73,7 @@ const config: Pick<
       },
     },
   }, */
-  // plugins: [animate],
-};
+	// plugins: [animate],
+}
 
-export default config;
+export default config
