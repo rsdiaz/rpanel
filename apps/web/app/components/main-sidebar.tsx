@@ -26,7 +26,7 @@ export default function MainSidebar() {
 						href="/"
 						className={cn(
 							'group flex items-center gap-4 rounded-lg py-[10px] px-[15px] overflow-clip transition-all',
-							path === '/' ? 'bg-background-secondary' : 'bg-transparent hover:bg-background-secondary/40',
+							path === '/' ? 'bg-background-secondary' : 'bg-transparent hover:hover:bg-gray-500/20',
 						)}
 					>
 						<Home width={24} height={24} className="lucide lucide-house size-[18px] shrink-0" />
@@ -39,7 +39,7 @@ export default function MainSidebar() {
 						href="/templates"
 						className={cn(
 							'group flex items-center gap-4 rounded-lg py-[10px] px-[15px] overflow-clip transition-all',
-							path === '/templates' ? 'bg-background-secondary' : 'bg-transparent hover:bg-background-secondary/40',
+							path === '/templates' ? 'bg-background-secondary' : 'bg-transparent hover:hover:bg-gray-500/20',
 						)}
 					>
 						<ShoppingBag width={24} height={24} className="lucide lucide-house size-[18px] shrink-0" />
@@ -52,7 +52,7 @@ export default function MainSidebar() {
 						href="/settings"
 						className={cn(
 							'group flex items-center gap-4 rounded-lg py-[10px] px-[15px] overflow-clip transition-all',
-							path === '/settings' ? 'bg-background-secondary' : 'bg-transparent hover:bg-background-secondary/40',
+							path === '/settings' ? 'bg-background-secondary' : 'bg-transparent hover:bg-gray-500/20',
 						)}
 					>
 						<Settings width={24} height={24} className="lucide lucide-house size-[18px] shrink-0" />

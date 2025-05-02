@@ -68,14 +68,17 @@ export class ProjectManager {
   }
 
   deleteApp(id: string) {
-    console.log(id)
     const project = this.db.prepare("SELECT * FROM apps WHERE id = ?").get(id);
+    const projectConfig = JSON.parse(project.config);
 
     if (!project) {
       throw new Error("No se encontró la app");
     }
     
-    deployService.removeStack(project.name)
+    if(projectConfig.services.length) {
+      deployService.removeStack(project.name)
+    }
+
 
     this.db.prepare("DELETE FROM apps WHERE id = ?").run(id);
   }

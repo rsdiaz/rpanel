@@ -11,7 +11,7 @@ export default function TemplatesPage() {
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
 				{templates.map(template => (
 					<AppDialog key={template.slug} template={template}>
-						<div className="flex flex-col items-center justify-between py-6 px-2 gap-4 bg-background border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+						<div className="flex flex-col items-center justify-between py-6 px-2 gap-4 bg-background border rounded-lg shadow-md hover:bg-gray-500/20 transition-shadow duration-300">
 							<div>
 								<Image
 									src={`/templates/${template.name}/assets/${template.logo}`}
