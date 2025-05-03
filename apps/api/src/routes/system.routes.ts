@@ -2,7 +2,8 @@ import express, { Router } from "express";
 import * as os from "node:os";
 import docker from "../docker";
 import checkDiskSpace from "check-disk-space";
-import { Server } from "socket.io"; // Importar Socket.IO
+import { Server } from "socket.io";
+import si from "systeminformation";
 
 const router: Router = express.Router();
 
@@ -13,11 +14,12 @@ export function setupSocketIO(io: Server) {
 
     // Emitir información del sistema periódicamente
     const interval = setInterval(async () => {
-      const [info, containers, cpuUsage, disk] = await Promise.all([
+      const [info, containers, cpuUsage, disk, networkUsage] = await Promise.all([
         docker.info(),
         docker.listContainers({ all: true }),
         getCPUUsage(),
         checkDiskSpace(process.platform === "win32" ? "C:" : "/"),
+        getNetworkUsage(),
       ]);
 
       const cpus = os.cpus();
@@ -49,6 +51,7 @@ export function setupSocketIO(io: Server) {
             used: diskUsed / 1024 / 1024 / 1024,
             usedPercent: Number(((diskUsed / diskTotal) * 100).toFixed(2)),
           },
+          network: networkUsage,
           platform: os.platform(),
           arch: os.arch(),
           uptime: os.uptime(),
@@ -66,7 +69,7 @@ export function setupSocketIO(io: Server) {
           })),
         },
       });
-    }, 5000); // Emitir cada 5 segundos
+    }, 3000); // Emitir cada 5 segundos
 
     socket.on("disconnect", () => {
       console.log(`Socket desconectado: ${socket.id}`);
@@ -108,13 +111,36 @@ function getCPUUsage(): Promise<number> {
   });
 }
 
+async function getNetworkUsage() {
+  const interfaces = await si.networkInterfaces();
+  const statsBefore = await si.networkStats();
+
+  // Esperar 1 segundo para obtener el delta
+  await new Promise((res) => setTimeout(res, 1000));
+
+  const statsAfter = await si.networkStats();
+
+  const usage = statsAfter.map((stat, index) => {
+    const rx = stat.rx_bytes - (statsBefore[index]?.rx_bytes ?? 0);
+    const tx = stat.tx_bytes - (statsBefore[index]?.tx_bytes ?? 0);
+    return {
+      iface: stat.iface,
+      rxBytesPerSec: rx,
+      txBytesPerSec: tx,
+    };
+  });
+
+  return usage;
+}
+
 router.get("/", async (_, res) => {
   console.log("sytema");
-  const [info, containers, cpuUsage, disk] = await Promise.all([
+  const [info, containers, cpuUsage, disk, networkUsage] = await Promise.all([
     docker.info(),
     docker.listContainers({ all: true }),
     getCPUUsage(),
     checkDiskSpace(process.platform === "win32" ? "C:" : "/"),
+    getNetworkUsage(),
   ]);
 
   const cpus = os.cpus();
@@ -145,6 +171,7 @@ router.get("/", async (_, res) => {
         used: diskUsed / 1024 / 1024 / 1024,
         usedPercent: Number(((diskUsed / diskTotal) * 100).toFixed(2)),
       },
+      network: networkUsage,
       platform: os.platform(),
       arch: os.arch(),
       uptime: os.uptime(),
