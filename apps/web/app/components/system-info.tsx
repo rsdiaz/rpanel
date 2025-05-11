@@ -1,18 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { Badge } from '@repo/ui/components/ui/badge'
-import { Card, CardDescription, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
-import { Container, Cpu, Database, MemoryStick } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSystemStore } from '../../stores/systemStore'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
+import { Box, Cpu, HardDrive, Info, Server } from 'lucide-react'
+import { Badge } from '@repo/ui/components/ui/badge'
+import templates from '../../templates/list.json'
 
 export default function SystemInfo() {
 	const [containers, setContainers] = useState<any[]>([])
 	const [systemInfo, setSystemInfo] = useState<Record<any, any>>()
+	// const [dockerInfo, setDockerInfo] = useState<any[]>([])
+
 	const [loading, setLoading] = useState(true)
 
 	const { connect, disconnect, data } = useSystemStore()
+
+	const usagePercent = data?.system?.cpu?.usagePercent ?? 0
+	const usageRam = data?.system?.memory?.usedPercent ?? 0
+	const usageDisk = data?.system?.disk?.usedPercent ?? 0
 
 	useEffect(() => {
 		fetch('http://localhost:3004/system')
@@ -29,91 +37,204 @@ export default function SystemInfo() {
 		}
 	}, [connect, disconnect])
 
+	const systemData = [
+		{ name: 'CPU', value: usagePercent, icon: Cpu, color: 'bg-green-500' },
+		{ name: 'Memoria', value: usageRam, icon: Cpu, color: 'bg-yellow-500' },
+		{ name: 'Disco', value: usageDisk, icon: HardDrive, color: 'bg-green-500' },
+	]
+
 	if (loading) return <p className="p-4">Cargando datos del sistema...</p>
+
+	// Función para determinar el color basado en el valor
+	const getColorClass = (value: number) => {
+		if (value < 50) return 'bg-green-500'
+		if (value < 80) return 'bg-yellow-500'
+		return 'bg-red-500'
+	}
+
+	console.log(containers)
+
+	const dockerInfo = {
+		version: '24.0.6',
+		status: 'Activo',
+		containers: {
+			running: 5,
+			stopped: 3,
+			total: 8,
+		},
+		images: 12,
+		resources: {
+			cpu: '2.5%',
+			memory: '1.2 GB',
+		},
+		system: {
+			os: 'Linux',
+			arch: 'x86_64',
+			kernelVersion: '5.15.0-91-generic',
+		},
+		apiVersion: '1.43',
+		buildTime: '2023-09-26T11:43:31Z',
+		experimental: false,
+	}
 
 	return (
 		<>
-			<h1 className="text-2xl font-bold flex items-center gap-4">Sistema</h1>
-			<div className="flex gap-4">
-				<Card className="bg-background rounded w-full">
+			<h1 className="text-2xl font-bold">Panel</h1>
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+				{/* System monitor  */}
+				<Card className="w-full bg-background border-0 shadow-none">
 					<CardHeader>
-						<CardDescription className="flex gap-2 items-center justify-between">
-							<div className="flex gap-2 items-center">
-								<Badge variant={'outline'} className="rounded-full p-2 bg-background-secondary text-foreground">
-									<Cpu />
-								</Badge>
-								<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-									<span className="text-white">{data?.system?.cpu.usagePercent.toFixed(2)}%</span>
-								</CardTitle>
-							</div>
-							<div>
-								<Badge variant={'outline'} className="flex gap-1 rounded-lg text-xs bg-background-secondary">
-									{/* <TrendingUpIcon className="size-3" /> */}
-									{systemInfo?.cpu.count} / {systemInfo?.memory.total.toFixed(2)} GB
-								</Badge>
-							</div>
-						</CardDescription>
+						<CardTitle className="text-xl">System Monitor</CardTitle>
+						<CardDescription>Check the system performance and usage</CardDescription>
 					</CardHeader>
+					<CardContent className="space-y-4">
+						{systemData.map(item => (
+							<div key={item.name} className="space-y-1.5">
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-2">
+										<item.icon className="h-4 w-4 text-muted-foreground" />
+										<span className="text-sm font-medium">{item.name}</span>
+									</div>
+									<span className="text-sm font-medium">{item.value}%</span>
+								</div>
+								<div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+									<div
+										className={`h-full rounded-full ${getColorClass(item.value)} transition-all`}
+										style={{ width: `${item.value}%` }}
+									/>
+								</div>
+								<div className="flex justify-between text-xs text-muted-foreground">
+									<span>0%</span>
+									<span>50%</span>
+									<span>100%</span>
+								</div>
+							</div>
+						))}
+					</CardContent>
 				</Card>
-				<Card className="bg-background rounded w-full">
+
+				{/*  Docker information  */}
+				<Card className="w-full bg-background border-0 shadow-none">
 					<CardHeader>
-						<CardDescription className="flex gap-2 items-center justify-between">
-							<div className="flex gap-2 items-center">
-								<Badge variant={'outline'} className="rounded-full p-2 bg-background-secondary text-foreground">
-									<MemoryStick />
-								</Badge>
-								<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
-									{data?.system?.memory?.usedPercent.toFixed(2)}%
-								</CardTitle>
+						<div className="flex items-center justify-between">
+							<div className="flex flex-col gap-2">
+								<CardTitle className="text-xl">Docker Status</CardTitle>
 							</div>
-							<div>
-								<Badge variant={'outline'} className="flex gap-1 rounded-lg text-xs bg-background-secondary">
-									{/* <TrendingUpIcon className="size-3" /> */}
-									{systemInfo?.memory.used.toFixed(2)} / {systemInfo?.memory.total.toFixed(2)} GB
-								</Badge>
-							</div>
-						</CardDescription>
+							<Badge
+								variant={dockerInfo?.status === 'Activo' ? 'default' : 'destructive'}
+								className={dockerInfo?.status === 'Activo' ? 'bg-green-500' : ''}
+							>
+								{dockerInfo.status}
+							</Badge>
+						</div>
+						<CardDescription>Check the docker status and information</CardDescription>
 					</CardHeader>
+					<CardContent className="space-y-4">
+						{/* Versión y API */}
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<Info className="h-4 w-4" />
+									<span>Versión</span>
+									<p className="font-medium text-white">{dockerInfo.version}</p>
+								</div>
+							</div>
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<Server className="h-4 w-4" />
+									<span>API</span>
+									<p className="font-medium text-white">{dockerInfo.apiVersion}</p>
+								</div>
+							</div>
+						</div>
+
+						<hr></hr>
+
+						{/* Contenedores e imágenes */}
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<Box className="h-4 w-4" />
+									<span>Contenedores</span>
+									<span className="font-medium text-white">{containers.length}</span>
+								</div>
+								<div className="flex flex-col">
+									{/* 									<div className="flex gap-4 text-sm">
+										<span className="text-green-500">{dockerInfo.containers.running} Activos</span>
+										<span className="text-gray-500">{dockerInfo.containers.stopped} Detenidos</span>
+									</div> */}
+								</div>
+							</div>
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<HardDrive className="h-4 w-4" />
+									<span>Imágenes</span>
+									<p className="font-medium text-white">{dockerInfo.images}</p>
+								</div>
+							</div>
+						</div>
+
+						<hr></hr>
+
+						{/* Sistema */}
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<span>OS</span>
+									<p className="font-medium text-white">{dockerInfo.system.os}</p>
+								</div>
+							</div>
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<span>Arquitectura</span>
+									<p className="font-medium text-white">{dockerInfo.system.arch}</p>
+								</div>
+							</div>
+						</div>
+						<hr></hr>
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-1">
+								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<span>Kernel</span>
+								</div>
+							</div>
+							<p className="text-sm text-white">{dockerInfo.system.kernelVersion}</p>
+						</div>
+					</CardContent>
 				</Card>
-				<Card className="bg-background rounded w-full">
+
+				{/* Last templates  */}
+				<Card className="w-full bg-background border-0 shadow-none">
 					<CardHeader>
-						<CardDescription className="flex gap-2 items-center justify-between">
-							<div className="flex gap-2 items-center">
-								<Badge variant={'outline'} className="rounded-full p-2 bg-background-secondary text-foreground">
-									<Database />
-								</Badge>
-								<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
-									{systemInfo?.disk?.usedPercent.toFixed(2)}%
-								</CardTitle>
-							</div>
-							<div>
-								<Badge variant={'outline'} className="flex gap-1 rounded-lg text-xs bg-background-secondary">
-									{/* <TrendingUpIcon className="size-3" /> */}
-									{systemInfo?.disk.used.toFixed(2)} / {systemInfo?.disk.total.toFixed(2)} GB
-								</Badge>
-							</div>
-						</CardDescription>
+						<CardTitle className="text-xl">Últimos templates</CardTitle>
+						<CardDescription>Consulta los últimos templates añadidos</CardDescription>
 					</CardHeader>
+					<CardContent className="space-y-4">
+						{templates.slice(0, 4).map(template => (
+							<div key={template.slug} className="flex items-center justify-between">
+								<div className="flex items-center gap-2">
+									<img
+										src={`/templates/${template.name}/assets/${template.logo}`}
+										alt={template.name}
+										width="40"
+										height="40"
+										className="rounded"
+									/>
+									<span className="text-sm font-medium">{template.name}</span>
+								</div>
+								<Badge variant={'secondary'}>Abrir</Badge>
+							</div>
+						))}
+					</CardContent>
 				</Card>
-				<Card className="bg-background rounded w-full">
+
+				{/* Actions  */}
+				<Card className="w-full bg-background border-0 shadow-none">
 					<CardHeader>
-						<CardDescription className="flex gap-2 items-center justify-between">
-							<div className="flex gap-2 items-center">
-								<Badge variant={'outline'} className="rounded-full p-2 bg-background-secondary text-foreground">
-									<Container />
-								</Badge>
-								<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-white">
-									{containers.length}
-								</CardTitle>
-							</div>
-							<div>
-								<Badge variant={'outline'} className="flex gap-1 rounded-lg text-xs bg-background-secondary">
-									{/* <TrendingUpIcon className="size-3" /> */}
-									Containers
-								</Badge>
-							</div>
-						</CardDescription>
+						<CardTitle className="text-xl">Acciones</CardTitle>
+						<CardDescription>Estado actual de los recursos del sistema</CardDescription>
 					</CardHeader>
+					<CardContent></CardContent>
 				</Card>
 			</div>
 		</>
