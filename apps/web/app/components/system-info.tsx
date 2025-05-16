@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useSystemStore } from '../../stores/systemStore'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
-import { Box, Cpu, HardDrive, Info, Server } from 'lucide-react'
+import { Box, Clock, Cpu, HardDrive, Info, Server } from 'lucide-react'
 import { Badge } from '@repo/ui/components/ui/badge'
 import templates from '../../templates/list.json'
 
@@ -180,13 +180,15 @@ export default function SystemInfo() {
 						<div className="grid grid-cols-2 gap-4">
 							<div className="space-y-1">
 								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<Info className="h-4 w-4" />
 									<span>OS</span>
 									<p className="font-medium text-white">{dockerInfo.system.os}</p>
 								</div>
 							</div>
 							<div className="space-y-1">
 								<div className="flex items-center gap-2 text-sm text-muted-foreground">
-									<span>Arquitectura</span>
+									<Info className="h-4 w-4" />
+									<span>Arq</span>
 									<p className="font-medium text-white">{dockerInfo.system.arch}</p>
 								</div>
 							</div>
@@ -195,6 +197,7 @@ export default function SystemInfo() {
 						<div className="grid grid-cols-2 gap-4">
 							<div className="space-y-1">
 								<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<Info className="h-4 w-4" />
 									<span>Kernel</span>
 								</div>
 							</div>
@@ -234,7 +237,31 @@ export default function SystemInfo() {
 						<CardTitle className="text-xl">Acciones</CardTitle>
 						<CardDescription>Estado actual de los recursos del sistema</CardDescription>
 					</CardHeader>
-					<CardContent></CardContent>
+					<CardContent>
+						<div>
+							<div className="divide-y">
+								<div className="p-3 hover:bg-muted/50">
+									<div className="flex items-start gap-2">
+										<div className={`p-1 rounded-full`}>
+											<Info className={`h-4 w-4`} />
+										</div>
+										<div className="flex-1 space-y-1">
+											<div className="flex items-center justify-between">
+												<div className="flex items-center gap-2">
+													<Badge>info</Badge>
+													<span className="text-sm font-medium">DEPLOY</span>
+												</div>
+												<div className="flex items-center text-xs text-muted-foreground">
+													<Clock className="h-3 w-3 mr-1" />
+												</div>
+											</div>
+											<p className="text-sm"></p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</CardContent>
 				</Card>
 			</div>
 		</>
